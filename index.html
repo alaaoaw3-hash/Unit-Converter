@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit Converter</title>
+    <!-- IBM Plex Mono Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS (Using CDN for standalone file, though classes are standard v4/v3 compatible) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        body {
+            font-family: 'IBM Plex Mono', monospace;
+            background-color: #fafafa;
+            /* Subtle grid background pattern */
+            background-image:
+                linear-gradient(to right, #f0f0f0 1px, transparent 1px),
+                linear-gradient(to bottom, #f0f0f0 1px, transparent 1px);
+            background-size: 60px 60px;
+            background-position: center top;
+        }
+
+        /* Container queries for highly responsive text scaling */
+        .output-container {
+            container-type: inline-size;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .auto-scale-text {
+            /* Scales dynamically based on container width */
+            font-size: clamp(2rem, 15cqw, 7rem);
+            word-break: break-all;
+            line-height: 1;
+            letter-spacing: -0.05em;
+        }
+
+        /* Input styling overrides */
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+        /* Custom Select Styling */
+        .select-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .select-wrapper select {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            padding-right: 3rem;
+        }
+
+        /* Remove the background rectangle/effect on hover/focus */
+        .select-wrapper select:hover,
+        .select-wrapper select:focus {
+            background-color: white !important;
+            outline: none;
+        }
+
+        .select-wrapper .arrow {
+            position: absolute;
+            right: 1.5rem;
+            /* Moved a bit more to the left */
+            top: 50%;
+            transform: translateY(-50%);
+            transition: transform 0.2s ease;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .select-wrapper.is-open .arrow {
+            transform: translateY(-50%) rotate(180deg);
+        }
+
+        /* Custom Dropdown Menu Styling */
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            background: white;
+            border: 3px solid black;
+            border-radius: 1.5rem;
+            margin-top: 0.5rem;
+            z-index: 50;
+            padding: 0.5rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+            max-height: 250px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            /* Prevent horizontal scroll */
+            scrollbar-gutter: stable;
+            /* Keeps layout stable */
+            clip-path: inset(0 round 1.5rem);
+            /* Ensures scrollbar follows rounded corners */
+        }
+
+        /* Custom Scrollbar for the menu */
+        .dropdown-menu::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .dropdown-menu::-webkit-scrollbar-thumb {
+            background: black;
+            border-radius: 10px;
+        }
+
+        .dropdown-option {
+            padding: 0.6rem 1.2rem;
+            border-radius: 9999px;
+            /* Pill shape */
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 0.25rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .dropdown-option:last-child {
+            margin-bottom: 0;
+        }
+
+        .dropdown-option:hover {
+            background-color: black;
+            color: white;
+        }
+
+        /* Marching Ants Animation */
+        .marching-ants {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            z-index: 10;
+        }
+
+        .select-wrapper:focus-within .marching-ants,
+        .select-wrapper.is-open .marching-ants {
+            opacity: 1;
+        }
+
+        /* Hide the standard border when ants are marching to prevent overlap */
+        .select-wrapper:focus-within [id$="Trigger"],
+        .select-wrapper.is-open [id$="Trigger"],
+        .select-wrapper:focus-within input,
+        .select-wrapper.is-open input {
+            border-color: transparent !important;
+        }
+
+        .marching-ants rect {
+            fill: none;
+            stroke: black;
+            stroke-width: 2;
+            stroke-dasharray: 8, 8;
+            stroke-linecap: square;
+            animation: ants-flow 0.6s linear infinite;
+            /* Position and size the rect to match the container's border */
+            x: 1px;
+            y: 1px;
+            width: calc(100% - 2px);
+            height: calc(100% - 2px);
+            rx: 11px;
+        }
+
+        @keyframes ants-flow {
+            from {
+                stroke-dashoffset: 16;
+            }
+
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col items-center p-4 sm:p-8 text-black pb-32">
+
+    <!-- Header Section -->
+    <header class="w-full max-w-5xl flex justify-between items-start mb-16 sm:mb-20 mt-4">
+        <div class="text-xs sm:text-sm leading-tight">
+            <span class="text-gray-500">Made by</span><br>
+            <strong class="font-bold text-base">Alaa Al-Ansi</strong>
+        </div>
+        <a href="https://github.com/alaaoaw3-hash/Unit-Converter" target="_blank" rel="noopener noreferrer"
+            class="flex items-center gap-2 text-sm hover:opacity-70 transition-opacity">
+            <div class="text-right leading-tight hidden sm:block">
+                <span class="font-bold text-base">GitHub</span><br>
+                <span class="text-gray-500 text-xs">repo</span>
+            </div>
+            <svg height="32" width="32" viewBox="0 0 16 16" fill="currentColor">
+                <path
+                    d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z">
+                </path>
+            </svg>
+        </a>
+    </header>
+
+    <!-- Hero Title -->
+    <div class="text-center mb-16 flex flex-col items-center">
+        <h1 class="text-4xl sm:text-5xl font-bold tracking-tight mb-0">unit</h1>
+        <h2 class="text-6xl sm:text-8xl md:text-9xl font-bold tracking-tighter leading-none mt-[-10px]">Converter</h2>
+    </div>
+
+    <!-- Main Content Grid -->
+    <main class="w-full max-w-4xl grid md:grid-cols-2 gap-6 sm:gap-8">
+
+        <!-- Left Card (Input Section) -->
+        <div class="bg-white border-[3px] border-black rounded-3xl p-6 sm:p-8 flex flex-col shadow-sm">
+
+            <!-- Tabs -->
+            <div class="flex gap-4 sm:gap-6 mb-8 text-base sm:text-lg font-bold" id="tabs">
+                <button class="tab-btn text-black transition-colors" data-unit="Length">Length</button>
+                <button class="tab-btn text-gray-300 hover:text-gray-500 transition-colors"
+                    data-unit="Weight">Weight</button>
+                <button class="tab-btn text-gray-300 hover:text-gray-500 transition-colors"
+                    data-unit="Temperature">Temperature</button>
+            </div>
+
+            <!-- Inputs Form -->
+            <div class="space-y-6 flex-grow">
+                <div>
+                    <label class="block text-sm font-semibold mb-2" id="inputLabel">Enter Length to convert</label>
+                    <input type="number" id="inputValue"
+                        class="w-full border-2 border-black rounded-xl p-3 sm:p-4 text-sm sm:text-base outline-none focus:ring-2 focus:ring-black focus:ring-offset-1 transition-all placeholder:text-gray-400">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold mb-2">Unit to convert from</label>
+                    <div class="select-wrapper custom-select" id="fromUnitWrapper">
+                        <div class="w-full border-2 border-black rounded-xl p-3 sm:p-4 text-sm sm:text-base bg-white cursor-pointer transition-all outline-none"
+                            id="fromUnitTrigger" tabindex="0">
+                            <span id="fromUnitLabel">mm</span>
+                            <input type="hidden" id="fromUnit" value="mm">
+                        </div>
+                        <div class="arrow">
+                            <svg width="12" height="8" viewBox="0 0 12 8" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path d="M1 1.5L6 6.5L11 1.5" stroke="black" stroke-width="2.5" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                        </div>
+                        <svg class="marching-ants">
+                            <rect />
+                        </svg>
+                        <div class="dropdown-menu hidden" id="fromUnitMenu">
+                            <!-- Options populated via JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold mb-2">Unit to convert to</label>
+                    <div class="select-wrapper custom-select" id="toUnitWrapper">
+                        <div class="w-full border-2 border-black rounded-xl p-3 sm:p-4 text-sm sm:text-base bg-white cursor-pointer transition-all outline-none"
+                            id="toUnitTrigger" tabindex="0">
+                            <span id="toUnitLabel">cm</span>
+                            <input type="hidden" id="toUnit" value="cm">
+                        </div>
+                        <div class="arrow">
+                            <svg width="12" height="8" viewBox="0 0 12 8" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path d="M1 1.5L6 6.5L11 1.5" stroke="black" stroke-width="2.5" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                        </div>
+                        <svg class="marching-ants">
+                            <rect />
+                        </svg>
+                        <div class="dropdown-menu hidden" id="toUnitMenu">
+                            <!-- Options populated via JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Convert Button -->
+            <div class="mt-10">
+                <button id="convertBtn"
+                    class="border-2 border-black rounded-full px-6 py-2 text-sm font-bold hover:bg-black hover:text-white transition-colors active:scale-95">
+                    Convert
+                </button>
+            </div>
+        </div>
+
+        <!-- Right Card (Output Section) -->
+        <div class="bg-white border-[3px] border-black rounded-3xl p-6 sm:p-8 flex flex-col min-h-[350px] shadow-sm">
+
+            <!-- Top Label -->
+            <div class="mb-12">
+                <div class="text-xs font-semibold text-gray-500 mb-1" id="inputUnitLabel">input unit</div>
+                <div class="text-2xl font-bold break-all" id="inputDisplay">0</div>
+            </div>
+
+            <!-- Main Output -->
+            <div class="output-container">
+                <div class="text-xs font-semibold text-gray-500 mb-2" id="outputUnitLabel">output unit</div>
+                <div class="flex items-baseline gap-1 font-bold w-full">
+                    <span class="text-5xl sm:text-7xl leading-none flex-shrink-0">=</span>
+                    <span class="auto-scale-text" id="outputDisplay">0.00</span>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- JavaScript Logic -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // State
+            let currentUnit = 'Length';
+
+            const unitsMap = {
+                'Length': ['mm', 'cm', 'm', 'km', 'in', 'ft', 'yd', 'mi'],
+                'Weight': ['mg', 'g', 'kg', 't', 'oz', 'lb'],
+                'Temperature': ['°C', '°F', 'K']
+            };
+
+            // DOM Elements
+            const tabs = document.querySelectorAll('.tab-btn');
+            const inputValue = document.getElementById('inputValue');
+            const convertBtn = document.getElementById('convertBtn');
+            const inputDisplay = document.getElementById('inputDisplay');
+            const outputDisplay = document.getElementById('outputDisplay');
+            const inputLabel = document.getElementById('inputLabel');
+
+            // Custom Dropdown Elements
+            const fromUnit = document.getElementById('fromUnit');
+            const toUnit = document.getElementById('toUnit');
+            const fromUnitLabel = document.getElementById('fromUnitLabel');
+            const toUnitLabel = document.getElementById('toUnitLabel');
+            const fromUnitTrigger = document.getElementById('fromUnitTrigger');
+            const toUnitTrigger = document.getElementById('toUnitTrigger');
+            const fromUnitMenu = document.getElementById('fromUnitMenu');
+            const toUnitMenu = document.getElementById('toUnitMenu');
+            const fromUnitWrapper = document.getElementById('fromUnitWrapper');
+            const toUnitWrapper = document.getElementById('toUnitWrapper');
+            const inputUnitLabel = document.getElementById('inputUnitLabel');
+            const outputUnitLabel = document.getElementById('outputUnitLabel');
+
+            function populateDropdowns(unitType) {
+                const units = unitsMap[unitType];
+
+                const createOptions = (menu, label, hiddenInput, wrapper) => {
+                    menu.innerHTML = '';
+                    units.forEach((u, index) => {
+                        const opt = document.createElement('div');
+                        opt.className = 'dropdown-option';
+                        opt.textContent = u;
+                        opt.onclick = (e) => {
+                            e.stopPropagation();
+                            label.textContent = u;
+                            hiddenInput.value = u;
+
+                            // Update output card labels
+                            if (hiddenInput.id === 'fromUnit') {
+                                inputUnitLabel.textContent = u;
+                            } else {
+                                outputUnitLabel.textContent = u;
+                            }
+
+                            menu.classList.add('hidden');
+                            wrapper.classList.remove('is-open');
+                        };
+                        menu.appendChild(opt);
+                    });
+                };
+
+                createOptions(fromUnitMenu, fromUnitLabel, fromUnit, fromUnitWrapper);
+                createOptions(toUnitMenu, toUnitLabel, toUnit, toUnitWrapper);
+
+                // Set defaults
+                fromUnitLabel.textContent = units[0];
+                fromUnit.value = units[0];
+                inputUnitLabel.textContent = units[0];
+                if (units.length > 1) {
+                    toUnitLabel.textContent = units[1];
+                    toUnit.value = units[1];
+                    outputUnitLabel.textContent = units[1];
+                } else {
+                    toUnitLabel.textContent = units[0];
+                    toUnit.value = units[0];
+                    outputUnitLabel.textContent = units[0];
+                }
+            }
+
+            // Initialize dropdowns
+            populateDropdowns(currentUnit);
+
+            // Handle Custom Dropdown Toggles
+            const setupCustomDropdown = (trigger, menu, wrapper) => {
+                trigger.onclick = (e) => {
+                    e.stopPropagation();
+                    const isHidden = menu.classList.contains('hidden');
+
+                    // Close other menus
+                    document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.add('hidden'));
+                    document.querySelectorAll('.select-wrapper').forEach(w => w.classList.remove('is-open'));
+
+                    if (isHidden) {
+                        menu.classList.remove('hidden');
+                        wrapper.classList.add('is-open');
+                    }
+                };
+            };
+
+            setupCustomDropdown(fromUnitTrigger, fromUnitMenu, fromUnitWrapper);
+            setupCustomDropdown(toUnitTrigger, toUnitMenu, toUnitWrapper);
+
+            // Close menus when clicking outside
+            document.addEventListener('click', () => {
+                document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.add('hidden'));
+                document.querySelectorAll('.select-wrapper').forEach(w => w.classList.remove('is-open'));
+            });
+
+            // Handle Tab Switching
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    currentUnit = tab.dataset.unit;
+
+                    // Update visual state of tabs
+                    tabs.forEach(t => {
+                        if (t === tab) {
+                            t.classList.remove('text-gray-300');
+                            t.classList.add('text-black');
+                        } else {
+                            t.classList.remove('text-black');
+                            t.classList.add('text-gray-300');
+                        }
+                    });
+
+                    // Update label and populate dynamic dropdowns
+                    inputLabel.textContent = `Enter ${currentUnit} to convert`;
+                    populateDropdowns(currentUnit);
+
+                    // Reset UI outputs on tab change
+                    inputDisplay.textContent = '0';
+                    outputDisplay.textContent = '0.00';
+                    inputValue.value = '';
+                });
+            });
+
+            // Handle Conversion (Mocking Backend)
+            convertBtn.addEventListener('click', () => {
+                const valRaw = inputValue.value.trim();
+                const val = parseFloat(valRaw);
+
+                // If input is empty or invalid, reset or do nothing
+                if (isNaN(val)) {
+                    inputDisplay.textContent = '0';
+                    outputDisplay.textContent = '0.00';
+                    return;
+                }
+
+                // Show immediate loading state
+                inputDisplay.textContent = val.toString();
+                outputDisplay.textContent = '...';
+
+                // Simulate network latency (Backend Mock)
+                setTimeout(() => {
+                    // Generate a random multiplier between 0.5 and 500
+                    const mockMultiplier = Math.random() * 499.5 + 0.5;
+                    const result = val * mockMultiplier;
+
+                    let formattedResult;
+
+                    if (result === 0) {
+                        formattedResult = '0.00';
+                    } else {
+                        // Format the number to max 4 decimal places, trimming trailing zeros
+                        formattedResult = parseFloat(result.toFixed(4)).toString();
+                    }
+
+                    outputDisplay.textContent = formattedResult;
+
+                }, 600); // 600ms delay simulates an API call
+            });
+
+            // Optional: trigger convert on 'Enter' key press
+            inputValue.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    convertBtn.click();
+                }
+            });
+        });
+    </script>
+    <div style="height: 300px;"></div>
+</body>
+
+</html>
