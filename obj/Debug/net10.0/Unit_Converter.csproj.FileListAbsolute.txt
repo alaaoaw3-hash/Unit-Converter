@@ -1,0 +1,15 @@
+C:\Users\Alaa\Desktop\Coding2\Backend_Projects\Unit_Converter\bin\Debug\net10.0\Unit_Converter.exe
+C:\Users\Alaa\Desktop\Coding2\Backend_Projects\Unit_Converter\bin\Debug\net10.0\Unit_Converter.deps.json
+C:\Users\Alaa\Desktop\Coding2\Backend_Projects\Unit_Converter\bin\Debug\net10.0\Unit_Converter.runtimeconfig.json
+C:\Users\Alaa\Desktop\Coding2\Backend_Projects\Unit_Converter\bin\Debug\net10.0\Unit_Converter.dll
+C:\Users\Alaa\Desktop\Coding2\Backend_Projects\Unit_Converter\bin\Debug\net10.0\Unit_Converter.pdb
+C:\Users\Alaa\Desktop\Coding2\Backend_Projects\Unit_Converter\obj\Debug\net10.0\Unit_Converter.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Alaa\Desktop\Coding2\Backend_Projects\Unit_Converter\obj\Debug\net10.0\Unit_Converter.AssemblyInfoInputs.cache
+C:\Users\Alaa\Desktop\Coding2\Backend_Projects\Unit_Converter\obj\Debug\net10.0\Unit_Converter.AssemblyInfo.cs
+C:\Users\Alaa\Desktop\Coding2\Backend_Projects\Unit_Converter\obj\Debug\net10.0\Unit_Converter.csproj.CoreCompileInputs.cache
+C:\Users\Alaa\Desktop\Coding2\Backend_Projects\Unit_Converter\obj\Debug\net10.0\Unit_Converter.sourcelink.json
+C:\Users\Alaa\Desktop\Coding2\Backend_Projects\Unit_Converter\obj\Debug\net10.0\Unit_Converter.dll
+C:\Users\Alaa\Desktop\Coding2\Backend_Projects\Unit_Converter\obj\Debug\net10.0\refint\Unit_Converter.dll
+C:\Users\Alaa\Desktop\Coding2\Backend_Projects\Unit_Converter\obj\Debug\net10.0\Unit_Converter.pdb
+C:\Users\Alaa\Desktop\Coding2\Backend_Projects\Unit_Converter\obj\Debug\net10.0\Unit_Converter.genruntimeconfig.cache
+C:\Users\Alaa\Desktop\Coding2\Backend_Projects\Unit_Converter\obj\Debug\net10.0\ref\Unit_Converter.dll
