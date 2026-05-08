@@ -6,6 +6,9 @@
         {
             Console.Write("\n");
             NumberToConvert numberObj = Tools.GetInputAndValidate();
+
+            double result = Tools.Convert(numberObj);
+            Console.WriteLine($"\nResult: {result:F2} {numberObj.TargetUnit}");
         }
     }
 }
