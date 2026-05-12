@@ -1,13 +1,13 @@
 using System.Net.NetworkInformation;
 
-namespace Unit_Converter
+namespace Unit_Converter.Controllers
 {
     public class NumberToConvert
     {
-        public string? UnitType {get; set;}
-        public double Number {get; set;}
-        public string? CurrentUnit {get; set;}
-        public string? TargetUnit {get; set;}
+        public string? UnitType { get; set; }
+        public double Number { get; set; }
+        public string? CurrentUnit { get; set; }
+        public string? TargetUnit { get; set; }
     }
 
     public class Tools
@@ -23,15 +23,15 @@ namespace Unit_Converter
         public static double Convert(NumberToConvert numberObj)
         {
             double result = 0;
-            if (lengthUnitType.Contains(numberObj.UnitType))
+            if (lengthUnitType.Contains(numberObj.UnitType?.ToLower()))
             {
                 result = LengthConvert(numberObj);
             }
-            else if (weightUnitType.Contains(numberObj.UnitType))
+            else if (weightUnitType.Contains(numberObj.UnitType?.ToLower()))
             {
                 result = WeightConvert(numberObj);
             }
-            else if (temperatureUnitType.Contains(numberObj.UnitType))
+            else if (temperatureUnitType.Contains(numberObj.UnitType?.ToLower()))
             {
                 result = TemperatureConvert(numberObj);
             }
@@ -42,7 +42,7 @@ namespace Unit_Converter
         public static double LengthConvert(NumberToConvert numberObj)
         {
             double result = 0;
-                double value = numberObj.Number;
+            double value = numberObj.Number;
 
             if (numberObj.CurrentUnit == "mm")
             {
@@ -219,7 +219,7 @@ namespace Unit_Converter
             else if (current == "F" || current == "°F") current = "F";
             else if (current == "K") current = "K";
             else current = "?";
-                
+
             if (target == "C" || target == "°C") target = "C";
             else if (target == "F" || target == "°F") target = "F";
             else if (target == "K") target = "K";
@@ -254,13 +254,13 @@ namespace Unit_Converter
 
             return result;
         }
-        
+
         public static NumberToConvert GetInputAndValidate()
         {
             NumberToConvert numberObj = new();
             string[] acceptedUnitTypeValues = ["length", "weight", "temperature", "l", "w", "t", "len", "wei", "temp"];
 
-            input_unit_type:
+        input_unit_type:
             Console.Write("What is the unit type? (length / weight / temperature) ");
             numberObj.UnitType = Console.ReadLine();
             if (!acceptedUnitTypeValues.Contains(numberObj.UnitType))
@@ -271,9 +271,9 @@ namespace Unit_Converter
                 goto input_unit_type;
             }
 
-            input_number_to_convert:
+        input_number_to_convert:
             Console.Write("Enter number to convert: ");
-            if(!double.TryParse(Console.ReadLine(), out double numberUserInput))
+            if (!double.TryParse(Console.ReadLine(), out double numberUserInput))
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("Invalid number input, try again");
@@ -284,22 +284,22 @@ namespace Unit_Converter
 
             SetValidCurrentUnit(numberObj);
             SetValidTargetUnit(numberObj);
-            
+
             return numberObj;
         }
         static void SetValidCurrentUnit(NumberToConvert numberObj)
         {
-            input_current_unit:
+        input_current_unit:
             // give unit list that matches the unit type
-            if(lengthUnitType.Contains(numberObj.UnitType))
+            if (lengthUnitType.Contains(numberObj.UnitType))
             {
                 Console.Write("Unit to convert from\n(mm, cm, m, km, in, ft, yd, mi): ");
             }
-            else if(weightUnitType.Contains(numberObj.UnitType))
+            else if (weightUnitType.Contains(numberObj.UnitType))
             {
                 Console.Write("Unit to convert from\n(mg, g, kg, t, oz, lb): ");
             }
-            else if(temperatureUnitType.Contains(numberObj.UnitType))
+            else if (temperatureUnitType.Contains(numberObj.UnitType))
             {
                 Console.Write("Unit to convert from\n(°C, °F, K): ");
             }
@@ -307,21 +307,21 @@ namespace Unit_Converter
             numberObj.CurrentUnit = Console.ReadLine()?.Trim().ToLower();
 
             // Check if entered unit matches the unit type
-            if(lengthUnitType.Contains(numberObj.UnitType) && !lengthUnits.Contains(numberObj.CurrentUnit))
+            if (lengthUnitType.Contains(numberObj.UnitType) && !lengthUnits.Contains(numberObj.CurrentUnit))
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("Invalid unit input, try again");
                 Console.ResetColor();
                 goto input_current_unit;
             }
-            else if(weightUnitType.Contains(numberObj.UnitType) && !weightUnits.Contains(numberObj.CurrentUnit))
+            else if (weightUnitType.Contains(numberObj.UnitType) && !weightUnits.Contains(numberObj.CurrentUnit))
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("Invalid unit input, try again");
                 Console.ResetColor();
                 goto input_current_unit;
             }
-            else if(temperatureUnitType.Contains(numberObj.UnitType) && !temperatureUnits.Contains(numberObj.CurrentUnit))
+            else if (temperatureUnitType.Contains(numberObj.UnitType) && !temperatureUnits.Contains(numberObj.CurrentUnit))
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("Invalid unit input, try again");
@@ -331,17 +331,17 @@ namespace Unit_Converter
         }
         static void SetValidTargetUnit(NumberToConvert numberObj)
         {
-            input_target_unit:
+        input_target_unit:
             // give unit list that matches the unit type
-            if(lengthUnitType.Contains(numberObj.UnitType))
+            if (lengthUnitType.Contains(numberObj.UnitType))
             {
                 Console.Write("Unit to convert to\n(mm, cm, m, km, in, ft, yd, mi): ");
             }
-            else if(weightUnitType.Contains(numberObj.UnitType))
+            else if (weightUnitType.Contains(numberObj.UnitType))
             {
                 Console.Write("Unit to convert to\n(mg, g, kg, t, oz, lb): ");
             }
-            else if(temperatureUnitType.Contains(numberObj.UnitType))
+            else if (temperatureUnitType.Contains(numberObj.UnitType))
             {
                 Console.Write("Unit to convert to\n(°C, °F, K): ");
             }
@@ -349,21 +349,21 @@ namespace Unit_Converter
             numberObj.TargetUnit = Console.ReadLine()?.Trim().ToLower();
 
             // Check if entered unit matches the unit type
-            if(lengthUnitType.Contains(numberObj.UnitType) && !lengthUnits.Contains(numberObj.TargetUnit))
+            if (lengthUnitType.Contains(numberObj.UnitType) && !lengthUnits.Contains(numberObj.TargetUnit))
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("Invalid unit input, try again");
                 Console.ResetColor();
                 goto input_target_unit;
             }
-            else if(weightUnitType.Contains(numberObj.UnitType) && !weightUnits.Contains(numberObj.TargetUnit))
+            else if (weightUnitType.Contains(numberObj.UnitType) && !weightUnits.Contains(numberObj.TargetUnit))
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("Invalid unit input, try again");
                 Console.ResetColor();
                 goto input_target_unit;
             }
-            else if(temperatureUnitType.Contains(numberObj.UnitType) && !temperatureUnits.Contains(numberObj.TargetUnit))
+            else if (temperatureUnitType.Contains(numberObj.UnitType) && !temperatureUnits.Contains(numberObj.TargetUnit))
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("Invalid unit input, try again");
