@@ -1,0 +1,176 @@
+body {
+    font-family: 'IBM Plex Mono', monospace;
+    background-color: #fafafa;
+    /* Subtle grid background pattern */
+    background-image:
+        linear-gradient(to right, #f0f0f0 1px, transparent 1px),
+        linear-gradient(to bottom, #f0f0f0 1px, transparent 1px);
+    background-size: 60px 60px;
+    background-position: center top;
+}
+
+/* Container queries for highly responsive text scaling */
+.output-container {
+    container-type: inline-size;
+    width: 100%;
+    overflow: hidden;
+}
+
+.auto-scale-text {
+    /* Scales dynamically based on container width */
+    font-size: clamp(2rem, 15cqw, 7rem);
+    word-break: break-all;
+    line-height: 1;
+    letter-spacing: -0.05em;
+}
+
+/* Input styling overrides */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+/* Custom Select Styling */
+.select-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.select-wrapper select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    padding-right: 3rem;
+}
+
+/* Remove the background rectangle/effect on hover/focus */
+.select-wrapper select:hover,
+.select-wrapper select:focus {
+    background-color: white !important;
+    outline: none;
+}
+
+.select-wrapper .arrow {
+    position: absolute;
+    right: 1.5rem;
+    /* Moved a bit more to the left */
+    top: 50%;
+    transform: translateY(-50%);
+    transition: transform 0.2s ease;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+}
+
+.select-wrapper.is-open .arrow {
+    transform: translateY(-50%) rotate(180deg);
+}
+
+/* Custom Dropdown Menu Styling */
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background: white;
+    border: 3px solid black;
+    border-radius: 1.5rem;
+    margin-top: 0.5rem;
+    z-index: 50;
+    padding: 0.5rem;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+    max-height: 250px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    /* Prevent horizontal scroll */
+    scrollbar-gutter: stable;
+    /* Keeps layout stable */
+    clip-path: inset(0 round 1.5rem);
+    /* Ensures scrollbar follows rounded corners */
+}
+
+/* Custom Scrollbar for the menu */
+.dropdown-menu::-webkit-scrollbar {
+    width: 6px;
+}
+
+.dropdown-menu::-webkit-scrollbar-thumb {
+    background: black;
+    border-radius: 10px;
+}
+
+.dropdown-option {
+    padding: 0.6rem 1.2rem;
+    border-radius: 9999px;
+    /* Pill shape */
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-bottom: 0.25rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.dropdown-option:last-child {
+    margin-bottom: 0;
+}
+
+.dropdown-option:hover {
+    background-color: black;
+    color: white;
+}
+
+/* Marching Ants Animation */
+.marching-ants {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    z-index: 10;
+}
+
+.select-wrapper:focus-within .marching-ants,
+.select-wrapper.is-open .marching-ants {
+    opacity: 1;
+}
+
+/* Hide the standard border when ants are marching to prevent overlap */
+.select-wrapper:focus-within [id$="Trigger"],
+.select-wrapper.is-open [id$="Trigger"],
+.select-wrapper:focus-within input,
+.select-wrapper.is-open input {
+    border-color: transparent !important;
+}
+
+.marching-ants rect {
+    fill: none;
+    stroke: black;
+    stroke-width: 2;
+    stroke-dasharray: 8, 8;
+    stroke-linecap: square;
+    animation: ants-flow 0.6s linear infinite;
+    /* Position and size the rect to match the container's border */
+    x: 1px;
+    y: 1px;
+    width: calc(100% - 2px);
+    height: calc(100% - 2px);
+    rx: 11px;
+}
+
+@keyframes ants-flow {
+    from {
+        stroke-dashoffset: 16;
+    }
+
+    to {
+        stroke-dashoffset: 0;
+    }
+}
