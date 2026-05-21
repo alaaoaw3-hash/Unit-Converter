@@ -11,6 +11,25 @@ public class ConvertingController : ControllerBase
     public IActionResult Convert([FromBody] NumberToConvert receivedNumberObj)
     {
         Console.WriteLine($"Request received!\nNumber: {receivedNumberObj.Number}, From: {receivedNumberObj.CurrentUnit}");
-        return Ok(Tools.Convert(receivedNumberObj));
+        if (string.IsNullOrEmpty(receivedNumberObj.UnitType) || string.IsNullOrEmpty(receivedNumberObj.CurrentUnit) || string.IsNullOrEmpty(receivedNumberObj.TargetUnit))
+        {
+            return BadRequest("There is a value that is empty or null");
+        }
+        else if (receivedNumberObj.Number < 0 && !string.Equals("temperature", receivedNumberObj.UnitType.ToLower()))
+        {
+            return BadRequest("Number is negative and unit type is not temperature");
+        }
+
+
+        ConversionVerdict conversionOutcome = Tools.Convert(receivedNumberObj);
+
+        // check if the process of conversion failed
+        if (!conversionOutcome.IsSuccessfullConversion)
+        {
+            return BadRequest("Unsuccessfull conversion. Try again.");
+        }
+
+
+        return Ok(conversionOutcome.Result);
     }
 }

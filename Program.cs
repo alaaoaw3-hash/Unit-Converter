@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -25,13 +25,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseCors("AllowAll");
+
 app.UseHttpsRedirection(); // Standard for security
 
 // Important for serving index.html from wwwroot
 app.UseDefaultFiles();
 app.UseStaticFiles();
-
-app.UseCors("AllowAll");
 
 app.UseAuthorization();
 

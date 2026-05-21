@@ -1,5 +1,3 @@
-using System.Net.NetworkInformation;
-
 namespace Unit_Converter.Controllers
 {
     public class NumberToConvert
@@ -10,204 +8,228 @@ namespace Unit_Converter.Controllers
         public string? TargetUnit { get; set; }
     }
 
+    public class ConversionVerdict(double result, bool isSuccessfullConversion)
+    {
+        public double Result { get; set; } = result;
+        public bool IsSuccessfullConversion { get; set; } = isSuccessfullConversion;
+    }
+
     public class Tools
     {
         // arrays for future use
         static string[] lengthUnitType = ["length", "len", "l"];
         static string[] weightUnitType = ["weight", "wei", "w"];
-        static string[] temperatureUnitType = ["temperature", "temp", "t"];
+        static string[] temperatureUnitType = ["temperature", "temp"];
         static string[] lengthUnits = ["mm", "cm", "m", "km", "in", "ft", "yd", "mi"];
         static string[] weightUnits = ["mg", "g", "kg", "t", "oz", "lb"];
         static string[] temperatureUnits = ["°C", "°F", "K", "C", "c", "F", "f", "k", "°c", "°f"];
 
-        public static double Convert(NumberToConvert numberObj)
+        public static ConversionVerdict Convert(NumberToConvert numberObj)
         {
-            double result = 0;
             if (lengthUnitType.Contains(numberObj.UnitType?.ToLower()))
             {
-                result = LengthConvert(numberObj);
+                return LengthConvert(numberObj);
             }
             else if (weightUnitType.Contains(numberObj.UnitType?.ToLower()))
             {
-                result = WeightConvert(numberObj);
+                return WeightConvert(numberObj);
             }
             else if (temperatureUnitType.Contains(numberObj.UnitType?.ToLower()))
             {
-                result = TemperatureConvert(numberObj);
+                return TemperatureConvert(numberObj);
             }
 
-            return result;
+            return new ConversionVerdict(0, false);
         }
 
-        public static double LengthConvert(NumberToConvert numberObj)
+        public static ConversionVerdict LengthConvert(NumberToConvert numberObj)
         {
             double result = 0;
+            bool isSuccessfullLengthConversion = false;
             double value = numberObj.Number;
 
-            if (numberObj.CurrentUnit == "mm")
+            string current = numberObj.CurrentUnit?.Trim().ToLower() ?? "";
+            string target = numberObj.TargetUnit?.Trim().ToLower() ?? "";
+
+            if (lengthUnits.Contains(current) && lengthUnits.Contains(target))
             {
-                if (numberObj.TargetUnit == "cm") result = value / 10.0;
-                else if (numberObj.TargetUnit == "m") result = value / 1000.0;
-                else if (numberObj.TargetUnit == "km") result = value / 1000000.0;
-                else if (numberObj.TargetUnit == "in") result = value / 25.4;
-                else if (numberObj.TargetUnit == "ft") result = value / 304.8;
-                else if (numberObj.TargetUnit == "yd") result = value / 914.4;
-                else if (numberObj.TargetUnit == "mi") result = value / 1609344.0;
-                else result = value; // same unit
-            }
-            else if (numberObj.CurrentUnit == "cm")
-            {
-                if (numberObj.TargetUnit == "mm") result = value * 10.0;
-                else if (numberObj.TargetUnit == "m") result = value / 100.0;
-                else if (numberObj.TargetUnit == "km") result = value / 100000.0;
-                else if (numberObj.TargetUnit == "in") result = value / 2.54;
-                else if (numberObj.TargetUnit == "ft") result = value / 30.48;
-                else if (numberObj.TargetUnit == "yd") result = value / 91.44;
-                else if (numberObj.TargetUnit == "mi") result = value / 160934.4;
-                else result = value;
-            }
-            else if (numberObj.CurrentUnit == "m")
-            {
-                if (numberObj.TargetUnit == "mm") result = value * 1000.0;
-                else if (numberObj.TargetUnit == "cm") result = value * 100.0;
-                else if (numberObj.TargetUnit == "km") result = value / 1000.0;
-                else if (numberObj.TargetUnit == "in") result = value * 39.37007874;
-                else if (numberObj.TargetUnit == "ft") result = value * 3.280839895;
-                else if (numberObj.TargetUnit == "yd") result = value * 1.093613298;
-                else if (numberObj.TargetUnit == "mi") result = value / 1609.344;
-                else result = value;
-            }
-            else if (numberObj.CurrentUnit == "km")
-            {
-                if (numberObj.TargetUnit == "mm") result = value * 1000000.0;
-                else if (numberObj.TargetUnit == "cm") result = value * 100000.0;
-                else if (numberObj.TargetUnit == "m") result = value * 1000.0;
-                else if (numberObj.TargetUnit == "in") result = value * 39370.07874;
-                else if (numberObj.TargetUnit == "ft") result = value * 3280.839895;
-                else if (numberObj.TargetUnit == "yd") result = value * 1093.613298;
-                else if (numberObj.TargetUnit == "mi") result = value / 1.609344;
-                else result = value;
-            }
-            else if (numberObj.CurrentUnit == "in")
-            {
-                if (numberObj.TargetUnit == "mm") result = value * 25.4;
-                else if (numberObj.TargetUnit == "cm") result = value * 2.54;
-                else if (numberObj.TargetUnit == "m") result = value * 0.0254;
-                else if (numberObj.TargetUnit == "km") result = value * 0.0000254;
-                else if (numberObj.TargetUnit == "ft") result = value / 12.0;
-                else if (numberObj.TargetUnit == "yd") result = value / 36.0;
-                else if (numberObj.TargetUnit == "mi") result = value / 63360.0;
-                else result = value;
-            }
-            else if (numberObj.CurrentUnit == "ft")
-            {
-                if (numberObj.TargetUnit == "mm") result = value * 304.8;
-                else if (numberObj.TargetUnit == "cm") result = value * 30.48;
-                else if (numberObj.TargetUnit == "m") result = value * 0.3048;
-                else if (numberObj.TargetUnit == "km") result = value * 0.0003048;
-                else if (numberObj.TargetUnit == "in") result = value * 12.0;
-                else if (numberObj.TargetUnit == "yd") result = value / 3.0;
-                else if (numberObj.TargetUnit == "mi") result = value / 5280.0;
-                else result = value;
-            }
-            else if (numberObj.CurrentUnit == "yd")
-            {
-                if (numberObj.TargetUnit == "mm") result = value * 914.4;
-                else if (numberObj.TargetUnit == "cm") result = value * 91.44;
-                else if (numberObj.TargetUnit == "m") result = value * 0.9144;
-                else if (numberObj.TargetUnit == "km") result = value * 0.0009144;
-                else if (numberObj.TargetUnit == "in") result = value * 36.0;
-                else if (numberObj.TargetUnit == "ft") result = value * 3.0;
-                else if (numberObj.TargetUnit == "mi") result = value / 1760.0;
-                else result = value;
-            }
-            else if (numberObj.CurrentUnit == "mi")
-            {
-                if (numberObj.TargetUnit == "mm") result = value * 1609344.0;
-                else if (numberObj.TargetUnit == "cm") result = value * 160934.4;
-                else if (numberObj.TargetUnit == "m") result = value * 1609.344;
-                else if (numberObj.TargetUnit == "km") result = value * 1.609344;
-                else if (numberObj.TargetUnit == "in") result = value * 63360.0;
-                else if (numberObj.TargetUnit == "ft") result = value * 5280.0;
-                else if (numberObj.TargetUnit == "yd") result = value * 1760.0;
-                else result = value;
+                isSuccessfullLengthConversion = true;
+
+                if (current == "mm")
+                {
+                    if (target == "cm") result = value / 10.0;
+                    else if (target == "m") result = value / 1000.0;
+                    else if (target == "km") result = value / 1000000.0;
+                    else if (target == "in") result = value / 25.4;
+                    else if (target == "ft") result = value / 304.8;
+                    else if (target == "yd") result = value / 914.4;
+                    else if (target == "mi") result = value / 1609344.0;
+                    else result = value; // same unit
+                }
+                else if (current == "cm")
+                {
+                    if (target == "mm") result = value * 10.0;
+                    else if (target == "m") result = value / 100.0;
+                    else if (target == "km") result = value / 100000.0;
+                    else if (target == "in") result = value / 2.54;
+                    else if (target == "ft") result = value / 30.48;
+                    else if (target == "yd") result = value / 91.44;
+                    else if (target == "mi") result = value / 160934.4;
+                    else result = value;
+                }
+                else if (current == "m")
+                {
+                    if (target == "mm") result = value * 1000.0;
+                    else if (target == "cm") result = value * 100.0;
+                    else if (target == "km") result = value / 1000.0;
+                    else if (target == "in") result = value * 39.37007874;
+                    else if (target == "ft") result = value * 3.280839895;
+                    else if (target == "yd") result = value * 1.093613298;
+                    else if (target == "mi") result = value / 1609.344;
+                    else result = value;
+                }
+                else if (current == "km")
+                {
+                    if (target == "mm") result = value * 1000000.0;
+                    else if (target == "cm") result = value * 100000.0;
+                    else if (target == "m") result = value * 1000.0;
+                    else if (target == "in") result = value * 39370.07874;
+                    else if (target == "ft") result = value * 3280.839895;
+                    else if (target == "yd") result = value * 1093.613298;
+                    else if (target == "mi") result = value / 1.609344;
+                    else result = value;
+                }
+                else if (current == "in")
+                {
+                    if (target == "mm") result = value * 25.4;
+                    else if (target == "cm") result = value * 2.54;
+                    else if (target == "m") result = value * 0.0254;
+                    else if (target == "km") result = value * 0.0000254;
+                    else if (target == "ft") result = value / 12.0;
+                    else if (target == "yd") result = value / 36.0;
+                    else if (target == "mi") result = value / 63360.0;
+                    else result = value;
+                }
+                else if (current == "ft")
+                {
+                    if (target == "mm") result = value * 304.8;
+                    else if (target == "cm") result = value * 30.48;
+                    else if (target == "m") result = value * 0.3048;
+                    else if (target == "km") result = value * 0.0003048;
+                    else if (target == "in") result = value * 12.0;
+                    else if (target == "yd") result = value / 3.0;
+                    else if (target == "mi") result = value / 5280.0;
+                    else result = value;
+                }
+                else if (current == "yd")
+                {
+                    if (target == "mm") result = value * 914.4;
+                    else if (target == "cm") result = value * 91.44;
+                    else if (target == "m") result = value * 0.9144;
+                    else if (target == "km") result = value * 0.0009144;
+                    else if (target == "in") result = value * 36.0;
+                    else if (target == "ft") result = value * 3.0;
+                    else if (target == "mi") result = value / 1760.0;
+                    else result = value;
+                }
+                else if (current == "mi")
+                {
+                    if (target == "mm") result = value * 1609344.0;
+                    else if (target == "cm") result = value * 160934.4;
+                    else if (target == "m") result = value * 1609.344;
+                    else if (target == "km") result = value * 1.609344;
+                    else if (target == "in") result = value * 63360.0;
+                    else if (target == "ft") result = value * 5280.0;
+                    else if (target == "yd") result = value * 1760.0;
+                    else result = value;
+                }
             }
             else
             {
                 result = value; // unknown current unit
             }
 
-            return result;
+            return new ConversionVerdict(result, isSuccessfullLengthConversion);
         }
-        public static double WeightConvert(NumberToConvert numberObj)
+        public static ConversionVerdict WeightConvert(NumberToConvert numberObj)
         {
             double result = 0;
-
+            bool isSuccessfullWeightConversion = false;
             double value = numberObj.Number;
-            if (numberObj.CurrentUnit == "mg")
+
+            string current = numberObj.CurrentUnit?.Trim().ToLower() ?? "";
+            string target = numberObj.TargetUnit?.Trim().ToLower() ?? "";
+
+            if (weightUnits.Contains(current) && weightUnits.Contains(target))
             {
-                if (numberObj.TargetUnit == "g") result = value / 1000.0;
-                else if (numberObj.TargetUnit == "kg") result = value / 1000000.0;
-                else if (numberObj.TargetUnit == "t") result = value / 1e9;
-                else if (numberObj.TargetUnit == "oz") result = value / 28349.523125;
-                else if (numberObj.TargetUnit == "lb") result = value / 453592.37;
-                else result = value; // same unit
-            }
-            else if (numberObj.CurrentUnit == "g")
-            {
-                if (numberObj.TargetUnit == "mg") result = value * 1000.0;
-                else if (numberObj.TargetUnit == "kg") result = value / 1000.0;
-                else if (numberObj.TargetUnit == "t") result = value / 1e6;
-                else if (numberObj.TargetUnit == "oz") result = value / 28.349523125;
-                else if (numberObj.TargetUnit == "lb") result = value / 453.59237;
-                else result = value;
-            }
-            else if (numberObj.CurrentUnit == "kg")
-            {
-                if (numberObj.TargetUnit == "mg") result = value * 1e6;
-                else if (numberObj.TargetUnit == "g") result = value * 1000.0;
-                else if (numberObj.TargetUnit == "t") result = value / 1000.0;
-                else if (numberObj.TargetUnit == "oz") result = value * 35.27396195;
-                else if (numberObj.TargetUnit == "lb") result = value * 2.204622622;
-                else result = value;
-            }
-            else if (numberObj.CurrentUnit == "t")
-            {
-                if (numberObj.TargetUnit == "mg") result = value * 1e9;
-                else if (numberObj.TargetUnit == "g") result = value * 1e6;
-                else if (numberObj.TargetUnit == "kg") result = value * 1000.0;
-                else if (numberObj.TargetUnit == "oz") result = value * 35273.96195;
-                else if (numberObj.TargetUnit == "lb") result = value * 2204.622622;
-                else result = value;
-            }
-            else if (numberObj.CurrentUnit == "oz")
-            {
-                if (numberObj.TargetUnit == "mg") result = value * 28349.523125;
-                else if (numberObj.TargetUnit == "g") result = value * 28.349523125;
-                else if (numberObj.TargetUnit == "kg") result = value / 35.27396195;
-                else if (numberObj.TargetUnit == "t") result = value / 35273.96195;
-                else if (numberObj.TargetUnit == "lb") result = value / 16.0;
-                else result = value;
-            }
-            else if (numberObj.CurrentUnit == "lb")
-            {
-                if (numberObj.TargetUnit == "mg") result = value * 453592.37;
-                else if (numberObj.TargetUnit == "g") result = value * 453.59237;
-                else if (numberObj.TargetUnit == "kg") result = value / 2.204622622;
-                else if (numberObj.TargetUnit == "t") result = value / 2204.622622;
-                else if (numberObj.TargetUnit == "oz") result = value * 16.0;
-                else result = value;
+                isSuccessfullWeightConversion = true;
+
+                if (current == "mg")
+                {
+                    if (target == "g") result = value / 1000.0;
+                    else if (target == "kg") result = value / 1000000.0;
+                    else if (target == "t") result = value / 1e9;
+                    else if (target == "oz") result = value / 28349.523125;
+                    else if (target == "lb") result = value / 453592.37;
+                    else result = value; // same unit
+                }
+                else if (current == "g")
+                {
+                    if (target == "mg") result = value * 1000.0;
+                    else if (target == "kg") result = value / 1000.0;
+                    else if (target == "t") result = value / 1e6;
+                    else if (target == "oz") result = value / 28.349523125;
+                    else if (target == "lb") result = value / 453.59237;
+                    else result = value;
+                }
+                else if (current == "kg")
+                {
+                    if (target == "mg") result = value * 1e6;
+                    else if (target == "g") result = value * 1000.0;
+                    else if (target == "t") result = value / 1000.0;
+                    else if (target == "oz") result = value * 35.27396195;
+                    else if (target == "lb") result = value * 2.204622622;
+                    else result = value;
+                }
+                else if (current == "t")
+                {
+                    if (target == "mg") result = value * 1e9;
+                    else if (target == "g") result = value * 1e6;
+                    else if (target == "kg") result = value * 1000.0;
+                    else if (target == "oz") result = value * 35273.96195;
+                    else if (target == "lb") result = value * 2204.622622;
+                    else result = value;
+                }
+                else if (current == "oz")
+                {
+                    if (target == "mg") result = value * 28349.523125;
+                    else if (target == "g") result = value * 28.349523125;
+                    else if (target == "kg") result = value / 35.27396195;
+                    else if (target == "t") result = value / 35273.96195;
+                    else if (target == "lb") result = value / 16.0;
+                    else result = value;
+                }
+                else if (current == "lb")
+                {
+                    if (target == "mg") result = value * 453592.37;
+                    else if (target == "g") result = value * 453.59237;
+                    else if (target == "kg") result = value / 2.204622622;
+                    else if (target == "t") result = value / 2204.622622;
+                    else if (target == "oz") result = value * 16.0;
+                    else result = value;
+                }
             }
             else
             {
                 result = value; // unknown current unit
             }
 
-            return result;
+            return new ConversionVerdict(result, isSuccessfullWeightConversion);
         }
-        public static double TemperatureConvert(NumberToConvert numberObj)
+        public static ConversionVerdict TemperatureConvert(NumberToConvert numberObj)
         {
             double result = 0;
+            bool isSuccessfullTemperatureConversion = false;
 
             double value = numberObj.Number;
 
@@ -226,33 +248,37 @@ namespace Unit_Converter.Controllers
             else target = "?";
 
             // Step 2: Perform conversion if both units are valid
-            if (current == "C")
+            if (current != "?" && target != "?")
             {
-                if (target == "C") result = value;
-                else if (target == "F") result = (value * 9.0 / 5.0) + 32;
-                else if (target == "K") result = value + 273.15;
-                else result = value;
-            }
-            else if (current == "F")
-            {
-                if (target == "F") result = value;
-                else if (target == "C") result = (value - 32) * 5.0 / 9.0;
-                else if (target == "K") result = (value - 32) * 5.0 / 9.0 + 273.15;
-                else result = value;
-            }
-            else if (current == "K")
-            {
-                if (target == "K") result = value;
-                else if (target == "C") result = value - 273.15;
-                else if (target == "F") result = (value - 273.15) * 9.0 / 5.0 + 32;
-                else result = value;
+                isSuccessfullTemperatureConversion = true;
+                if (current == "C")
+                {
+                    if (target == "C") result = value;
+                    else if (target == "F") result = (value * 9.0 / 5.0) + 32;
+                    else if (target == "K") result = value + 273.15;
+                    else result = value;
+                }
+                else if (current == "F")
+                {
+                    if (target == "F") result = value;
+                    else if (target == "C") result = (value - 32) * 5.0 / 9.0;
+                    else if (target == "K") result = (value - 32) * 5.0 / 9.0 + 273.15;
+                    else result = value;
+                }
+                else if (current == "K")
+                {
+                    if (target == "K") result = value;
+                    else if (target == "C") result = value - 273.15;
+                    else if (target == "F") result = (value - 273.15) * 9.0 / 5.0 + 32;
+                    else result = value;
+                }
             }
             else
             {
                 result = value; // unknown unit
             }
 
-            return result;
+            return new ConversionVerdict(result, isSuccessfullTemperatureConversion);
         }
 
         public static NumberToConvert GetInputAndValidate()
